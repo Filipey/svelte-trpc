@@ -1,13 +1,26 @@
 <script lang="ts">
-	import Button from '../lib/components/Button.svelte';
+	import type { PageData } from './$types';
 
-	let value = 0;
-	const upgradeValue = () => (value += 1);
-	const downgradeValue = () => (value -= 1);
+	export let data: PageData;
 </script>
 
-<div class="flex">
-	<p class="text-black text-xl">The current value of the counter is: {value}</p>
+<svelte:head>
+	<title>Learning SVELTE + TRPC</title>
+</svelte:head>
+
+<div class="text-center bg-slate-600">
+	<p class="text-xl">TODO LIST CRUD USING SVELTEKIT + TRPC</p>
+	<p class="text-white">
+		You are {data.isAuthenticated ? '' : 'not'} authenticated{data.username
+			? `as ${data.username}`
+			: ''}.
+	</p>
+	<br />
+	<p class="text-white">
+		{#if data.isAuthenticated}
+			You will be able to handle your todos.
+		{:else}
+			You need to <a class="text-red" href="/login">login</a>, in order to handle todos.
+		{/if}
+	</p>
 </div>
-<Button text="Increase" action={upgradeValue} color="primary" />
-<Button text="Decrease" action={downgradeValue} color="secondary" />
