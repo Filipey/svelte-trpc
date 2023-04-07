@@ -3,6 +3,7 @@ import prisma from '$lib/prisma';
 import { auth } from '$lib/trpc/middleware/auth';
 import { logger } from '$lib/trpc/middleware/logger';
 import { t } from '$lib/trpc/t';
+import { TRPCError } from '@trpc/server';
 import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 
@@ -95,5 +96,36 @@ export const users = t.router({
 					id: input.id
 				}
 			});
+		}),
+
+	login: t.procedure
+		.use(logger)
+		.input(
+			z.object({
+				email: z.string().email(),
+				password: z.string().min(8)
+			})
+		)
+		.query(async ({ input }) => {
+			const user = await prisma.user.findUnique({
+				select: {
+					name: true,
+					email: true,
+					todos: true,
+					passwordHash: true
+				},
+				where: {
+					email: input.email
+				}
+			});
+
+			if (!user || user.passwordHash !== jwt.verify(input.password, JWT_SECRET)) {
+				throw new TRPCError({
+					message: 'INVALID USER',
+					code: 'NOT_FOUND'
+				});
+			}
+
+			return user;
 		})
 });

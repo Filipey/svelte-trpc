@@ -25,6 +25,7 @@ model Todo {
   title String
   checked Boolean
   ownerId String
+  createdAt DateTime @default(now())
 
   owner User @relation(fields: [ownerId], references: [id])
 }
